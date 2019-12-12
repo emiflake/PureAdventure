@@ -61,3 +61,9 @@ exports.ffi_use = function(name) {
 		};
 	};
 }
+
+exports.ffi_find_npc = function (npc_name) {
+	return function() {
+		return find_npc(npc_name);
+	}
+}

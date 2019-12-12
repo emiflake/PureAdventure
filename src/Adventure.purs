@@ -1,13 +1,9 @@
 module Adventure where
 
-import Prelude (Unit, class Show, show, (<$>), discard)
-import Adventure.Position (class HasPosition, getPosition, Position(..))
-import Adventure.Log (logShow)
+import Prelude (Unit)
+-- import Adventure.Log (logShow)
 import Effect (Effect)
 import Data.Maybe (Maybe(..))
-
-data PlayerT
-  = PlayerT Player
 
 type Player
   = { name :: String
@@ -20,84 +16,66 @@ type Player
     , y :: Number
     }
 
-instance showPlayer :: Show PlayerT where
-  show (PlayerT p) = show p
-
 foreign import ffi_get_player :: String -> Effect Player
 
-getPlayer :: String -> Effect PlayerT
-getPlayer s = PlayerT <$> ffi_get_player s
+getPlayer :: String -> Effect Player
+getPlayer = ffi_get_player
 
 foreign import ffi_character :: Effect Player
 
-character :: Effect PlayerT
-character = PlayerT <$> ffi_character
-
-instance playerPos :: HasPosition PlayerT where
-  getPosition :: PlayerT -> Position
-  getPosition (PlayerT p) = Position { x: p.x, y: p.y }
-
-data MonsterT
-  = MonsterT Monster
+character :: Effect Player
+character = ffi_character
 
 type Monster
   = { name :: String
+    , id :: String
     , hp :: Number
     , level :: Number
     , x :: Number
     , y :: Number
     }
 
-instance showMonster :: Show MonsterT where
-  show (MonsterT m) = show m
-
 type NearestMonsterArgs
   = {}
 
 foreign import ffi_get_nearest_monster :: NearestMonsterArgs -> Effect Monster
 
-getNearestMonster :: NearestMonsterArgs -> Effect MonsterT
-getNearestMonster args = MonsterT <$> ffi_get_nearest_monster args
+getNearestMonster :: NearestMonsterArgs -> Effect Monster
+getNearestMonster = ffi_get_nearest_monster
 
-getNearestMonster' :: Effect MonsterT
+getNearestMonster' :: Effect Monster
 getNearestMonster' = getNearestMonster {}
 
-instance monsterPos :: HasPosition MonsterT where
-  getPosition :: MonsterT -> Position
-  getPosition (MonsterT m) = Position { x: m.x, y: m.y }
+type AttackTarget r
+  = { id :: String
+    | r
+    }
 
-type AttackTarget
-  = Monster
+foreign import ffi_attack :: forall r. AttackTarget r -> Effect Unit
 
-foreign import ffi_attack :: AttackTarget -> Effect Unit
+foreign import ffi_can_attack :: forall r. AttackTarget r -> Effect Boolean
 
-foreign import ffi_can_attack :: AttackTarget -> Effect Boolean
+attackMonster :: forall r. AttackTarget r -> Effect Unit
+attackMonster = ffi_attack
 
-attackMonster :: MonsterT -> Effect Unit
-attackMonster (MonsterT m) = ffi_attack m
+canAttackMonster :: forall r. AttackTarget r -> Effect Boolean
+canAttackMonster = ffi_can_attack
 
-canAttackMonster :: MonsterT -> Effect Boolean
-canAttackMonster (MonsterT m) = ffi_can_attack m
-
-foreign import ffi_smart_move :: Position -> Effect Unit
+foreign import ffi_smart_move :: forall r. { x :: Number, y :: Number | r } -> Effect Unit
 
 foreign import ffi_move :: Number -> Number -> Effect Unit
 
-move :: Position -> Effect Unit
-move (Position p) = ffi_move p.x p.y
+move ::
+  forall r.
+  { x :: Number, y :: Number | r } ->
+  Effect Unit
+move p = ffi_move p.x p.y
 
-moveTo :: forall a. HasPosition a => a -> Effect Unit
-moveTo a = move (getPosition a)
-
-smartMove :: Position -> Effect Unit
+smartMove ::
+  forall r.
+  { x :: Number, y :: Number | r } ->
+  Effect Unit
 smartMove = ffi_smart_move
-
-smartMoveTo :: forall a. HasPosition a => a -> Effect Unit
-smartMoveTo trgt = do
-  let
-    position = getPosition trgt
-  logShow position
-  smartMove position
 
 foreign import ffi_loot :: Boolean -> Effect Unit
 
@@ -111,3 +89,22 @@ foreign import ffi_use :: String -> Maybe UseTarget -> Effect Unit
 
 use' :: String -> Effect Unit
 use' name = ffi_use name Nothing
+
+foreign import ffi_find_npc ::
+  String ->
+  Effect
+    ( Maybe
+        { x :: Number
+        , y :: Number
+        }
+    )
+
+findNPC ::
+  String ->
+  Effect
+    ( Maybe
+        { x :: Number
+        , y :: Number
+        }
+    )
+findNPC = ffi_find_npc
