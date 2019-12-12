@@ -15,6 +15,7 @@ import Data.Argonaut.Decode.Generic.Rep (class DecodeLiteral, decodeLiteralSumWi
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
 import Data.Argonaut.Encode.Generic.Rep (class EncodeLiteral, encodeLiteralSumWithTransform, genericEncodeJson, genericEncodeJsonWith)
 import Effect (Effect)
+import Effect.Aff
 import Data.Maybe (Maybe(..))
 import Adventure.Store (storeGet, storeSet)
 import Bot.Task
@@ -30,10 +31,10 @@ initialState =
   , counter: 0.0
   }
 
-storeState :: ST -> Effect Unit
+storeState :: ST -> Aff Unit
 storeState = storeSet "state"
 
-getState :: Effect ST
+getState :: Aff ST
 getState = do
   st <- storeGet "state"
   case st of
@@ -44,9 +45,9 @@ getState = do
       pure st'
 
 type StateHandler
-  = (ST -> Effect ST)
+  = (ST -> Aff ST)
 
-withState :: (ST -> Effect ST) -> Effect Unit
+withState :: (ST -> Aff ST) -> Aff Unit
 withState f = do
   st <- getState
   res <- f st

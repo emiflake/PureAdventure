@@ -4,8 +4,10 @@ import Prelude
 import Effect (Effect)
 import Bot.Behavior (runBot)
 import Adventure.Log (log)
+import Effect.Aff (launchAff_)
 
 main :: Effect Unit
-main = do
-  log "Hello from PureScript"
-  runBot
+main =
+  launchAff_ do
+    log "Hello from PureScript"
+    runBot

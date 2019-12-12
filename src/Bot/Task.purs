@@ -10,6 +10,7 @@ import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
 import Data.Argonaut.Encode.Generic.Rep (class EncodeLiteral, encodeLiteralSumWithTransform, genericEncodeJson, genericEncodeJsonWith)
 import Effect (Effect)
 import Data.Maybe (Maybe(..))
+import Adventure.Position
 
 data Task
   = Hunting

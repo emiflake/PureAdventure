@@ -1,7 +1,12 @@
 "use strict";
 
 exports.ffi_character = function() {
-	return character;
+	let itemList = [];
+	for (const item of character.items ) {
+		if (item && item.name && item.q)
+			itemList.push({ name : item.name, quantity : item.q });
+	}
+	return Object.assign({}, character, { itemList });
 };
 
 exports.ffi_get_player = function(player_name) {
@@ -37,14 +42,15 @@ exports.ffi_move = function(x) {
 	}
 }
 
-// NOTE: This function will eventually be removed
-// in favour of our own movement system.
+exports.ffi_xmove = function(destination) {
+	return function() {
+		xmove(destination.x, destination.y);
+	}
+}
+
 exports.ffi_smart_move = function(destination) {
 	return function() {
-		// return new Promise((resolve, reject) => {
-		safe_log("Calling smart move with " + JSON.stringify(destination), "white");
 		smart_move(destination.x, destination.y);
-		// });
 	}
 }
 
@@ -62,8 +68,26 @@ exports.ffi_use = function(name) {
 	};
 }
 
-exports.ffi_find_npc = function (npc_name) {
-	return function() {
-		return find_npc(npc_name);
-	}
+exports.ffi_find_npc = function (Just) {
+	return function(Nothing) {
+		return function(npc_name) {
+			return function() {
+				const npc = find_npc(npc_name);
+				if (npc) {
+					return Just(npc);
+				} else {
+					return Nothing;
+				}
+			};
+		};
+	};
+}
+
+exports.ffi_buy = function(name) {
+	return function(quantity) {
+		return function() {
+			game_log("Purchasing" + name + " x" + quantity);
+			return buy(name, quantity);
+		}
+	};
 }
