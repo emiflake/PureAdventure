@@ -1,9 +1,8 @@
 module Bot.Behavior where
 
 import Prelude
-import Effect (Effect)
-import Effect.Aff
-import Data.Int
+import Effect.Aff (Aff, Milliseconds(..), delay)
+import Data.Int (toNumber)
 import Data.Maybe (fromMaybe)
 import Bot.State (withState, StateHandler, ST)
 import Adventure
@@ -18,10 +17,9 @@ import Adventure
   , xmove
   , buy
   )
-import Adventure.Position
-import Bot.Locations (npcPotionsPos, gooPos)
-import Adventure.Log (log, logShow)
-import Effect.Timer (setInterval, IntervalId)
+import Adventure.Position (distanceE)
+import Bot.Locations (npcPotionsPos, huntingGroundsPos)
+import Adventure.Log (log)
 import Bot.Task (Task(..))
 
 potionsTarget :: Number
@@ -61,8 +59,8 @@ restock st = do
 hunt :: StateHandler
 hunt st = do
   char <- character
-  if distanceE gooPos char > 200.0 then do
-    xmove gooPos
+  if distanceE huntingGroundsPos char > 200.0 then do
+    xmove huntingGroundsPos
   else do
     closest <- getNearestMonster'
     move closest

@@ -99,6 +99,8 @@ xmove ::
   Aff Unit
 xmove = liftEffect <$> ffi_xmove
 
+-- Don't use, works awfully
+-- Prefer own pathfinding (WIP in Bot.Pathfinding.Graph)
 smart_move ::
   forall e.
   PositionE e ->
@@ -135,3 +137,8 @@ foreign import ffi_buy :: String -> Number -> Effect (Promise Unit)
 buy :: String -> Number -> Aff Unit
 buy name amt = do
   toAffE $ ffi_buy name amt
+
+foreign import ffi_can_move_ft :: forall e f. PositionE e -> PositionE f -> Effect Boolean
+
+canMoveFromTo :: forall e f. PositionE e -> PositionE f -> Effect Boolean
+canMoveFromTo = ffi_can_move_ft

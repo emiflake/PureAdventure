@@ -13,52 +13,52 @@ exports.ffi_get_player = function(player_name) {
 	return function() {
 		return get_player(player_name);
 	};
-}
+};
 
 exports.ffi_attack = function(target) {
 	return function() {
 		return attack(target);
 	};
-}
+};
 
 exports.ffi_can_attack = function(target) {
 	return function() {
 		return can_attack(target);
 	};
-}
+};
 
 exports.ffi_get_nearest_monster = function(args) {
 	return function() {
 		return get_nearest_monster(args);
 	};
-}
+};
 
 
 exports.ffi_move = function(x) {
 	return function(y) {
 		return function() {
 			move(x, y);
-		}
-	}
-}
+		};
+	};
+};
 
 exports.ffi_xmove = function(destination) {
 	return function() {
 		xmove(destination.x, destination.y);
-	}
-}
+	};
+};
 
 exports.ffi_smart_move = function(destination) {
 	return function() {
 		smart_move(destination.x, destination.y);
-	}
-}
+	};
+};
 
 exports.ffi_loot = function(commander) {
 	return function() {
 		loot(commander);
-	}
-}
+	};
+};
 
 exports.ffi_use = function(name) {
 	return function(target) {
@@ -66,7 +66,7 @@ exports.ffi_use = function(name) {
 			use(name, target);
 		};
 	};
-}
+};
 
 exports.ffi_find_npc = function (Just) {
 	return function(Nothing) {
@@ -81,13 +81,26 @@ exports.ffi_find_npc = function (Just) {
 			};
 		};
 	};
-}
+};
 
 exports.ffi_buy = function(name) {
 	return function(quantity) {
 		return function() {
-			game_log("Purchasing" + name + " x" + quantity);
 			return buy(name, quantity);
+		};
+	};
+};
+
+exports.ffi_can_move_ft = function(from) {
+	return function(to) {
+		return function() {
+			return can_move({
+				map: character.map,
+				x: from.x,
+				y: from.y,
+				going_x: to.x,
+				going_y: to.y
+			});
 		}
 	};
-}
+};
