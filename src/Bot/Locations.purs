@@ -1,6 +1,7 @@
 module Bot.Locations where
 
-import Prelude
+import Prelude (negate)
+
 import Adventure.Position (Position)
 
 npcPotionsPos :: Position

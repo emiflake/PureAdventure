@@ -1,17 +1,17 @@
 module Adventure where
 
+import Prelude (Unit, ($), (<<<), (==))
+
 import Adventure.Position (Position, PositionE)
-import Prelude
-import Data.Int (floor)
+-- import Adventure.Log (log)
+import Control.Promise (Promise, toAffE)
 import Data.Array (find)
-import Adventure.Log (log)
-import Control.Promise
+import Data.Functor ((<$>))
+import Data.Int (floor)
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Aff
 import Effect.Class (liftEffect)
-import Data.Maybe (Maybe(..))
-import Data.Functor ((<$>))
-import Control.Promise (toAff)
 
 type Item
   = { name :: String

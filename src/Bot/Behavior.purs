@@ -1,10 +1,6 @@
 module Bot.Behavior where
 
 import Prelude
-import Effect.Aff (Aff, Milliseconds(..), delay)
-import Data.Int (toNumber)
-import Data.Maybe (fromMaybe)
-import Bot.State (withState, StateHandler, ST)
 import Adventure
   ( getNearestMonster'
   , move
@@ -17,10 +13,14 @@ import Adventure
   , xmove
   , buy
   )
+import Adventure.Log (log)
 import Adventure.Position (distanceE)
 import Bot.Locations (npcPotionsPos, huntingGroundsPos)
-import Adventure.Log (log)
+import Bot.State (withState, StateHandler, ST)
 import Bot.Task (Task(..))
+import Data.Int (toNumber)
+import Data.Maybe (fromMaybe)
+import Effect.Aff (Aff, Milliseconds(..), delay)
 
 potionsTarget :: Number
 potionsTarget = 1000.0

@@ -1,9 +1,10 @@
 module Adventure.Log where
 
-import Prelude
+import Prelude (class Show, Unit, (<<<), ($), show)
+
 import Effect (Effect)
-import Effect.Class (liftEffect)
 import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
 
 foreign import ffi_set_message :: String -> Effect Unit
 

@@ -1,7 +1,7 @@
 module Adventure.Position where
 
-import Prelude
-import Math
+import Prelude (($), (*), (+), (-))
+import Math (sqrt)
 
 type PositionE e
   = { x :: Number, y :: Number | e }

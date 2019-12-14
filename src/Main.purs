@@ -1,9 +1,10 @@
 module Main where
 
 import Prelude
-import Effect (Effect)
-import Bot.Behavior (runBot)
+
 import Adventure.Log (log)
+import Bot.Behavior (runBot)
+import Effect (Effect)
 import Effect.Aff (launchAff_)
 
 main :: Effect Unit

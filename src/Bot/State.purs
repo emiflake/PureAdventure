@@ -6,19 +6,12 @@ module Bot.State where
     It is singly responsible for all information the bot
     may hold.
 -}
-import Prelude
-import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
-import Data.Argonaut.Core (stringify)
-import Data.Argonaut.Decode.Class (class DecodeJson, decodeJson)
-import Data.Argonaut.Decode.Generic.Rep (class DecodeLiteral, decodeLiteralSumWithTransform, genericDecodeJson, genericDecodeJsonWith)
-import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
-import Data.Argonaut.Encode.Generic.Rep (class EncodeLiteral, encodeLiteralSumWithTransform, genericEncodeJson, genericEncodeJsonWith)
-import Effect (Effect)
-import Effect.Aff
-import Data.Maybe (Maybe(..))
+import Prelude (Unit, bind, discard, pure)
+
 import Adventure.Store (storeGet, storeSet)
-import Bot.Task
+import Bot.Task (Task(..))
+import Data.Maybe (Maybe(..))
+import Effect.Aff (Aff)
 
 type ST
   = { task :: Task
