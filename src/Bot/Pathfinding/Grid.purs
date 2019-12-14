@@ -1,8 +1,8 @@
 module Bot.Pathfinding.Grid where
 
-import Prelude
+import Prelude (Unit, pure, ($))
+import Adventure.Position (Position)
 import Data.Map as Map
-import Adventure.Position
 import Effect.Aff (Aff)
 
 type Grid

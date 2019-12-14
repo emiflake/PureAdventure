@@ -1,15 +1,16 @@
 module Adventure.Store where
 
-import Data.Maybe (Maybe(..))
-import Data.Either (Either(..), hush)
-import Prelude
-import Effect (Effect)
-import Effect.Aff
-import Effect.Class (liftEffect)
+import Prelude (Unit, bind, pure, ($), (<<<))
+
 import Data.Argonaut.Core (stringify)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Argonaut.Decode.Class (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
+import Data.Either (hush)
+import Data.Maybe (Maybe(..))
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
 
 foreign import ffi_set :: String -> String -> Effect Unit
 
@@ -30,10 +31,8 @@ storeSetR :: String -> String -> Aff Unit
 storeSetR k v = liftEffect $ ffi_set k v
 
 storeGetR :: String -> Aff (Maybe String)
-storeGetR key =
-  liftEffect
-    $ do
-        val <- ffi_get key
-        pure case val of
-          "" -> Nothing
-          xs -> Just xs
+storeGetR key = liftEffect $ do
+  val <- ffi_get key
+  pure case val of
+    "" -> Nothing
+    xs -> Just xs
