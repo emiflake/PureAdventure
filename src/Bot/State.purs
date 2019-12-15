@@ -20,7 +20,7 @@ type ST
 
 initialState :: ST
 initialState =
-  { task: Hunting
+  { task: Hunting Nothing
   , counter: 0.0
   }
 
@@ -37,8 +37,7 @@ getState = do
     Just st' -> do
       pure st'
 
-type StateHandler
-  = (ST -> Aff ST)
+type StateHandler = (ST -> Aff ST)
 
 withState :: (ST -> Aff ST) -> Aff Unit
 withState f = do

@@ -15,7 +15,7 @@ import Adventure
   )
 import Adventure.Log (log)
 import Adventure.Position (distanceE)
-import Bot.Locations (npcPotionsPos, huntingGroundsPos)
+import Bot.Locations (npcPotionsPos)
 import Bot.State (withState, StateHandler, ST)
 import Bot.Task (Task(..))
 import Data.Int (toNumber)
@@ -56,11 +56,12 @@ restock st = do
   else do
     pure $ st
 
-hunt :: StateHandler
-hunt st = do
+hunt :: Maybe Position -> StateHandler
+hunt hPos st = do
   char <- character
-  if distanceE huntingGroundsPos char > 200.0 then do
-    xmove huntingGroundsPos
+  if distanceE hPos char > 200.0 then do
+    log $ "Moving to hunting ground pos " <> (show hPos)
+    xmove hPos
   else do
     closest <- getNearestMonster'
     move closest
@@ -74,7 +75,7 @@ hunt st = do
 taskDispatch :: Task -> StateHandler
 taskDispatch task = case task of
   Restocking -> restock
-  Hunting -> hunt
+  Hunting hPos -> hunt hPos
 
 tick :: Aff Unit
 tick = do
