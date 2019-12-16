@@ -14,31 +14,29 @@ import Adventure
   , buy
   )
 import Adventure.Log (log)
-import Adventure.Position (distanceE)
+import Adventure.Position (Position, distanceE)
 import Bot.Locations (npcPotionsPos)
 import Bot.State (withState, StateHandler, ST)
 import Bot.Task (Task(..))
 import Data.Int (toNumber)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, Milliseconds(..), delay)
 
 potionsTarget :: Number
 potionsTarget = 1000.0
 
 decideCourseOfAction :: ST -> Aff ST
-decideCourseOfAction st
-  | st.task == Hunting = do
+decideCourseOfAction st = case st.task of
+  Hunting (hPosMay) -> do
     char <- character
     let
       mCount = fromMaybe 0 $ itemCount "mpot0" char
-
       hCount = fromMaybe 0 $ itemCount "hpot0" char
     if (toNumber mCount < (potionsTarget / 2.0) || toNumber hCount < (potionsTarget / 2.0)) then
       pure $ st { task = Restocking }
     else
-      pure $ st { task = Hunting }
-
-decideCourseOfAction st = pure st
+      pure $ st { task = Hunting hPosMay}
+  _ -> pure st
 
 restock :: StateHandler
 restock st = do
@@ -47,35 +45,35 @@ restock st = do
   xmove npcPotionsPos
   let
     mCount = fromMaybe 0 $ itemCount "mpot0" char
-
     hCount = fromMaybe 0 $ itemCount "hpot0" char
   if ((distanceE npcPotionsPos char) < 10.0) then do
     _ <- buy "mpot0" (potionsTarget - toNumber mCount)
     _ <- buy "hpot0" (potionsTarget - toNumber hCount)
-    pure $ st { task = Hunting }
+    pure $ st { task = Hunting st.lastHuntingPos}
   else do
     pure $ st
 
 hunt :: Maybe Position -> StateHandler
-hunt hPos st = do
+hunt hPosMay st = do
   char <- character
-  if distanceE hPos char > 200.0 then do
-    log $ "Moving to hunting ground pos " <> (show hPos)
-    xmove hPos
-  else do
-    closest <- getNearestMonster'
-    move closest
-    whenM (canAttackMonster closest)
-      $ attackMonster closest
-    when (char.mp < char.max_mp * 0.20) $ use' "use_mp"
-    when (char.hp < char.max_hp * 0.80) $ use' "use_hp"
-    loot'
-  pure st
+  case hPosMay of
+    Just hPos | distanceE hPos char > 200.0 -> do
+      log $ "Moving to hunting ground pos " <> (show hPos)
+      xmove hPos
+    _ -> do
+      closest <- getNearestMonster'
+      move closest
+      whenM (canAttackMonster closest)
+        $ attackMonster closest
+      when (char.mp < char.max_mp * 0.20) $ use' "use_mp"
+      when (char.hp < char.max_hp * 0.80) $ use' "use_hp"
+      loot'
+  pure $ st { task = Hunting st.lastHuntingPos}
 
 taskDispatch :: Task -> StateHandler
 taskDispatch task = case task of
   Restocking -> restock
-  Hunting hPos -> hunt hPos
+  Hunting hPosMay -> hunt hPosMay
 
 tick :: Aff Unit
 tick = do

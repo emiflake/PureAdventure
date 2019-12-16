@@ -3,10 +3,10 @@ module Bot.Task where
 import Prelude (class Eq, class Show, identity)
 
 import Adventure.Position (Position)
-import Data.Argonaut.Decode.Class (class DecodeJson)
-import Data.Argonaut.Decode.Generic.Rep (decodeLiteralSumWithTransform)
-import Data.Argonaut.Encode.Class (class EncodeJson)
-import Data.Argonaut.Encode.Generic.Rep (encodeLiteralSumWithTransform)
+import Data.Argonaut.Decode (class DecodeJson)
+import Data.Argonaut.Decode.Generic.Rep (genericDecodeJson)
+import Data.Argonaut.Encode (class EncodeJson)
+import Data.Argonaut.Encode.Generic.Rep (genericEncodeJson)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe)
@@ -20,10 +20,10 @@ derive instance genericTask :: Generic Task _
 derive instance eqTask :: Eq Task
 
 instance encodeTask :: EncodeJson Task where
-  encodeJson a = encodeLiteralSumWithTransform identity a
+  encodeJson a = genericEncodeJson a
 
 instance decodeTask :: DecodeJson Task where
-  decodeJson a = decodeLiteralSumWithTransform identity a
+  decodeJson a = genericDecodeJson a
 
 instance showTask :: Show Task where
   show = genericShow
