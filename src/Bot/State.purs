@@ -9,6 +9,7 @@ module Bot.State where
 import Prelude (Unit, bind, discard, pure)
 
 import Adventure.Store (storeGet, storeSet)
+import Adventure.Position (Position)
 import Bot.Task (Task(..))
 import Data.Maybe (Maybe(..))
 import Effect.Aff (Aff)
@@ -16,12 +17,17 @@ import Effect.Aff (Aff)
 type ST
   = { task :: Task
     , counter :: Number
+    , lastHuntingPos :: Maybe Position
     }
+
+initHuntingPos :: Maybe Position
+initHuntingPos = Nothing
 
 initialState :: ST
 initialState =
-  { task: Hunting
+  { task: Hunting Nothing
   , counter: 0.0
+  , lastHuntingPos: initHuntingPos
   }
 
 storeState :: ST -> Aff Unit
@@ -37,8 +43,7 @@ getState = do
     Just st' -> do
       pure st'
 
-type StateHandler
-  = (ST -> Aff ST)
+type StateHandler = (ST -> Aff ST)
 
 withState :: (ST -> Aff ST) -> Aff Unit
 withState f = do
