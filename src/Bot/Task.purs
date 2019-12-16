@@ -1,7 +1,6 @@
 module Bot.Task where
 
 import Prelude (class Eq, class Show, identity)
-
 import Adventure.Position (Position)
 import Data.Argonaut.Decode (class DecodeJson)
 import Data.Argonaut.Decode.Generic.Rep (genericDecodeJson)

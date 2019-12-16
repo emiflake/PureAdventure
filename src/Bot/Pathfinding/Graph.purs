@@ -2,7 +2,7 @@ module Bot.Pathfinding.Graph where
 
 import Prelude
 import Adventure.Position (Position, PositionE, distanceE)
-import Bot.Pathfinding.Grid (Grid)
+import Adventure.Grid (Grid)
 import Data.Foldable (minimumBy)
 import Data.Maybe (Maybe)
 

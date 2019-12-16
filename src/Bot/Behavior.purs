@@ -15,13 +15,15 @@ import Adventure
   )
 import Adventure.Log (log)
 import Adventure.Position (Position, distanceE)
-import Adventure.Graphics (drawLine, clearDrawings)
-import Bot.Locations (npcPotionsPos, huntingGroundsPos)
+import Adventure.Grid (findGridDefault)
+import Bot.Locations (npcPotionsPos)
 import Bot.State (withState, StateHandler, ST)
 import Bot.Task (Task(..))
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, Milliseconds(..), delay)
+import Effect.Class (liftEffect)
+import Effect.Console as Console
 
 potionsTarget :: Number
 potionsTarget = 1000.0
@@ -83,8 +85,8 @@ tick :: Aff Unit
 tick = do
   withState
     $ \st -> do
-        -- clearDrawings
-        -- drawLine { x: 0.0, y: 0.0 } { x: 1000.0, y: 1000.0 } 1 0xFFFFFF
+        grid <- findGridDefault "main"
+        liftEffect $ Console.logShow grid
         log ("Dispatching on task " <> show st.task)
         nst <- taskDispatch st.task st
         nst' <- decideCourseOfAction nst
