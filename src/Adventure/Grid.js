@@ -2,13 +2,13 @@
 
 exports.ffi_x_lines = function(world) {
 	return function() {
-		return G.geometry[world].x_lines;
+		return G.geometry[world].x_lines.map(line => ({pos: line[0], min: line[1], max: line[2]}));
 	};
 };
 
 exports.ffi_y_lines = function(world) {
 	return function() {
-		return G.geometry[world].y_lines;
+		return G.geometry[world].y_lines.map(line => ({pos: line[0], min: line[1], max: line[2]}));
 	};
 };
 
