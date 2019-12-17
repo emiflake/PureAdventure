@@ -6,8 +6,9 @@ module Bot.State where
     It is singly responsible for all information the bot
     may hold.
 -}
-import Prelude (Unit, bind, discard, pure)
+import Prelude (Unit, bind, discard, pure, ($), (<>))
 
+import Adventure.Log (log)
 import Adventure.Store (storeGet, storeSet)
 import Adventure.Position (Position)
 import Bot.Task (Task(..))
@@ -41,6 +42,10 @@ getState = do
       storeState initialState
       pure initialState
     Just st' -> do
+      log $ "DEBUG: retrieved task state is " <> (case st'.task of
+        Restocking -> "Restocking"
+        Hunting _ -> "Hunting"
+      )
       pure st'
 
 type StateHandler = (ST -> Aff ST)

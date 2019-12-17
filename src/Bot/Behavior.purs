@@ -1,6 +1,17 @@
 module Bot.Behavior where
 
-import Prelude
+import Prelude (
+    Unit
+  , bind
+  , discard
+  , div
+  , pure
+  , show
+  , unit
+  , when
+  , whenM
+  , ($), (*), (-), (<), (<>), (>), (||)
+  )
 import Adventure
   ( getNearestMonster'
   , move
@@ -13,17 +24,16 @@ import Adventure
   , xmove
   , buy
   )
-import Adventure.Log (log)
+import Adventure.Log (dateLog, log)
 import Adventure.Position (Position, distanceE)
 import Bot.Locations (npcPotionsPos)
 import Bot.State (withState, StateHandler, ST)
 import Bot.Task (Task(..))
-import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect.Aff (Aff, Milliseconds(..), delay)
 
-potionsTarget :: Number
-potionsTarget = 1000.0
+potionsTarget :: Int
+potionsTarget = 1000
 
 decideCourseOfAction :: ST -> Aff ST
 decideCourseOfAction st = case st.task of
@@ -32,9 +42,11 @@ decideCourseOfAction st = case st.task of
     let
       mCount = fromMaybe 0 $ itemCount "mpot0" char
       hCount = fromMaybe 0 $ itemCount "hpot0" char
-    if (toNumber mCount < (potionsTarget / 2.0) || toNumber hCount < (potionsTarget / 2.0)) then
+    if (mCount < (potionsTarget `div` 2) || hCount < (potionsTarget `div` 2)) then do
+      log "Setting task to Restocking DEBUG"
       pure $ st { task = Restocking }
-    else
+    else do
+      log "Setting task to Hunting DEBUG"
       pure $ st { task = Hunting hPosMay}
   _ -> pure st
 
@@ -47,8 +59,8 @@ restock st = do
     mCount = fromMaybe 0 $ itemCount "mpot0" char
     hCount = fromMaybe 0 $ itemCount "hpot0" char
   if ((distanceE npcPotionsPos char) < 10.0) then do
-    _ <- buy "mpot0" (potionsTarget - toNumber mCount)
-    _ <- buy "hpot0" (potionsTarget - toNumber hCount)
+    _ <- buy "mpot0" (potionsTarget - mCount)
+    _ <- buy "hpot0" (potionsTarget - hCount)
     pure $ st { task = Hunting st.lastHuntingPos}
   else do
     pure $ st
@@ -77,11 +89,17 @@ taskDispatch task = case task of
 
 tick :: Aff Unit
 tick = do
+  dateStr <- dateLog
   withState
     $ \st -> do
-        log ("Dispatching on task " <> show st.task)
+        log $ "Dispatching on task " <> show st.task
+          <> " at " <> dateStr
         nst <- taskDispatch st.task st
         nst' <- decideCourseOfAction nst
+        log $ "DEBUG: new task state is " <> (case nst'.task of
+          Restocking -> "Restocking"
+          Hunting _ -> "Hunting"
+        )
         pure nst'
   delay $ Milliseconds 1000.0
   tick

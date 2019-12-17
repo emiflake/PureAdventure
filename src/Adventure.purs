@@ -1,9 +1,10 @@
 module Adventure where
 
-import Prelude (Unit, ($), (<<<), (==))
+import Prelude (Unit, ($), (<<<), (==), (>))
 
 import Adventure.Position (Position, PositionE)
 -- import Adventure.Log (log)
+import Control.Applicative (when)
 import Control.Promise (Promise, toAffE)
 import Data.Array (find)
 import Data.Functor ((<$>))
@@ -132,11 +133,11 @@ findNPC ::
   Effect (Maybe Position)
 findNPC = ffi_find_npc Just Nothing
 
-foreign import ffi_buy :: String -> Number -> Effect (Promise Unit)
+foreign import ffi_buy :: String -> Int -> Effect (Promise Unit)
 
-buy :: String -> Number -> Aff Unit
+buy :: String -> Int -> Aff Unit
 buy name amt = do
-  toAffE $ ffi_buy name amt
+  when (amt > 0) $ toAffE $ ffi_buy name amt
 
 foreign import ffi_can_move_ft :: forall e f. PositionE e -> PositionE f -> Effect Boolean
 
