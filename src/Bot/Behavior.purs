@@ -42,11 +42,9 @@ decideCourseOfAction st = case st.task of
     let
       mCount = fromMaybe 0 $ itemCount "mpot0" char
       hCount = fromMaybe 0 $ itemCount "hpot0" char
-    if (mCount < (potionsTarget `div` 2) || hCount < (potionsTarget `div` 2)) then do
-      log "Setting task to Restocking DEBUG"
+    if (mCount < (potionsTarget `div` 2) || hCount < (potionsTarget `div` 2)) then
       pure $ st { task = Restocking }
-    else do
-      log "Setting task to Hunting DEBUG"
+    else
       pure $ st { task = Hunting hPosMay}
   _ -> pure st
 
@@ -96,10 +94,6 @@ tick = do
           <> " at " <> dateStr
         nst <- taskDispatch st.task st
         nst' <- decideCourseOfAction nst
-        log $ "DEBUG: new task state is " <> (case nst'.task of
-          Restocking -> "Restocking"
-          Hunting _ -> "Hunting"
-        )
         pure nst'
   delay $ Milliseconds 1000.0
   tick

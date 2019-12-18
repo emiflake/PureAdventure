@@ -2,7 +2,7 @@
 
 
 
-exports.ffi_set = function(key) {
+exports.unsafe_ffi_set = function(key) {
 	return function(value) {
 		return function() {
 			localStorage.setItem(key, value);
@@ -10,7 +10,7 @@ exports.ffi_set = function(key) {
 	};
 };
 
-exports.ffi_get = function(key) {
+exports.unsafe_ffi_get = function(key) {
 	return function() {
 		const ret = localStorage.getItem(key);
 		if (ret) {

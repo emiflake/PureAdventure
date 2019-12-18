@@ -12,9 +12,9 @@ import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 
-foreign import ffi_set :: String -> String -> Effect Unit
+foreign import unsafe_ffi_set :: String -> String -> Effect Unit
 
-foreign import ffi_get :: String -> Effect String
+foreign import unsafe_ffi_get :: String -> Effect String
 
 storeSet :: forall a. EncodeJson a => String -> a -> Aff Unit
 storeSet key value = storeSetR key <<< stringify $ encodeJson value
@@ -28,11 +28,11 @@ storeGet key = do
     hush (decodeJson json')
 
 storeSetR :: String -> String -> Aff Unit
-storeSetR k v = liftEffect $ ffi_set k v
+storeSetR k v = liftEffect $ unsafe_ffi_set k v
 
 storeGetR :: String -> Aff (Maybe String)
-storeGetR key = liftEffect $ do
-  val <- ffi_get key
+storeGetR key = do
+  val <- liftEffect $ unsafe_ffi_get key
   pure case val of
     "" -> Nothing
     xs -> Just xs
