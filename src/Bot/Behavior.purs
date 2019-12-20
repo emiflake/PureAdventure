@@ -13,40 +13,33 @@ import Prelude (
   , ($), (*), (-), (<), (<>), (>), (||)
   )
 import Adventure
-  ( getNearestMonster'
+  ( Player
+  , getNearestMonster'
   , move
   , attackMonster
   , loot'
   , canAttackMonster
   , character
   , use'
-  , itemCount
   , xmove
   , buy
   )
 import Adventure.Log (dateLog, log)
 import Adventure.Position (Position, distanceE)
+import Bot.Inventory (hpPotCount, mpPotCount)
 import Bot.Locations (npcPotionsPos)
-import Bot.State (withState, StateHandler, ST)
+import Bot.State (withState, StateHandler)
 import Bot.Task (Task(..))
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(..))
 import Effect.Aff (Aff, Milliseconds(..), delay)
 
 potionsTarget :: Int
 potionsTarget = 1000
 
-decideCourseOfAction :: ST -> Aff ST
-decideCourseOfAction st = case st.task of
-  Hunting (hPosMay) -> do
-    char <- character
-    let
-      mCount = fromMaybe 0 $ itemCount "mpot0" char
-      hCount = fromMaybe 0 $ itemCount "hpot0" char
-    if (mCount < (potionsTarget `div` 2) || hCount < (potionsTarget `div` 2)) then
-      pure $ st { task = Restocking }
-    else
-      pure $ st { task = Hunting hPosMay}
-  _ -> pure st
+shouldRestock :: Player -> Boolean
+shouldRestock char =
+      mpPotCount char < (potionsTarget `div` 2)
+   || hpPotCount char < (potionsTarget `div` 2)
 
 restock :: StateHandler
 restock st = do
@@ -54,14 +47,12 @@ restock st = do
   log ("Have " <> show char.gold <> " gold")
   xmove npcPotionsPos
   let
-    mCount = fromMaybe 0 $ itemCount "mpot0" char
-    hCount = fromMaybe 0 $ itemCount "hpot0" char
-  if ((distanceE npcPotionsPos char) < 10.0) then do
-    _ <- buy "mpot0" (potionsTarget - mCount)
-    _ <- buy "hpot0" (potionsTarget - hCount)
+    potsDist = distanceE npcPotionsPos char
+  if (potsDist < 10.0) then do
+    _ <- buy "mpot0" (potionsTarget - mpPotCount char)
+    _ <- buy "hpot0" (potionsTarget - hpPotCount char)
     pure $ st { task = Hunting st.lastHuntingPos}
-  else do
-    pure $ st
+  else pure st
 
 hunt :: Maybe Position -> StateHandler
 hunt hPosMay st = do
@@ -78,7 +69,8 @@ hunt hPosMay st = do
       when (char.mp < char.max_mp * 0.20) $ use' "use_mp"
       when (char.hp < char.max_hp * 0.80) $ use' "use_hp"
       loot'
-  pure $ st { task = Hunting st.lastHuntingPos}
+  if (shouldRestock char) then pure $ st { task = Restocking}
+  else pure $ st { task = Hunting hPosMay}
 
 taskDispatch :: Task -> StateHandler
 taskDispatch task = case task of
@@ -93,8 +85,7 @@ tick = do
         log $ "Dispatching on task " <> show st.task
           <> " at " <> dateStr
         nst <- taskDispatch st.task st
-        nst' <- decideCourseOfAction nst
-        pure nst'
+        pure nst
   delay $ Milliseconds 1000.0
   tick
 

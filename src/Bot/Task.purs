@@ -1,6 +1,6 @@
 module Bot.Task where
 
-import Prelude (class Eq, class Show, identity)
+import Prelude (class Eq, class Show)
 
 import Adventure.Position (Position)
 import Data.Argonaut.Decode (class DecodeJson)

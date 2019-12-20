@@ -6,8 +6,9 @@ module Bot.State where
     It is singly responsible for all information the bot
     may hold.
 -}
-import Prelude (Unit, bind, discard, pure)
+import Prelude (Unit, bind, discard, pure, ($), (<>))
 
+import Adventure (character)
 import Adventure.Store (storeGet, storeSet)
 import Adventure.Position (Position)
 import Bot.Task (Task(..))
@@ -31,11 +32,14 @@ initialState =
   }
 
 storeState :: ST -> Aff Unit
-storeState = storeSet "state"
+storeState st = do
+  char <- character
+  storeSet (char.name <> "state") st
 
 getState :: Aff ST
 getState = do
-  st <- storeGet "state"
+  char <- character
+  st <- storeGet $ char.name <> "state"
   case st of
     Nothing -> do
       storeState initialState
