@@ -3,11 +3,9 @@ module Adventure.Position where
 import Prelude (($), (*), (+), (-))
 import Math (sqrt)
 
-type PositionE e
-  = { x :: Number, y :: Number | e }
+type PositionE e = { x :: Number, y :: Number | e }
 
-type Position
-  = PositionE ()
+type Position = PositionE ()
 
 distance :: Position -> Position -> Number
 distance = distanceE

@@ -37,6 +37,10 @@ type Player
     , itemList :: Array Item
     }
 
+-- | Manually project on the position.
+playerPos :: Player -> Position
+playerPos char = {x : char.x, y: char.y}
+
 foreign import ffi_get_player :: String -> Effect Player
 
 getPlayer :: String -> Effect Player

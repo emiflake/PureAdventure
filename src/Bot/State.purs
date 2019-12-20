@@ -31,15 +31,20 @@ initialState =
   , lastHuntingPos: initHuntingPos
   }
 
+stateKey :: Aff String
+stateKey = do
+  char <- character
+  pure $ "PureAdventure_" <> char.name <> "_state"
+
 storeState :: ST -> Aff Unit
 storeState st = do
-  char <- character
-  storeSet (char.name <> "state") st
+  sKey <- stateKey
+  storeSet sKey st
 
 getState :: Aff ST
 getState = do
-  char <- character
-  st <- storeGet $ char.name <> "state"
+  sKey <- stateKey
+  st <- storeGet sKey
   case st of
     Nothing -> do
       storeState initialState

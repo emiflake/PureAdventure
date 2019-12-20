@@ -9,7 +9,6 @@ import Prelude (
   , show
   , unit
   , when
-  , whenM
   , ($), (*), (-), (<), (<>), (>), (||)
   )
 import Adventure
@@ -20,6 +19,7 @@ import Adventure
   , loot'
   , canAttackMonster
   , character
+  , playerPos
   , use'
   , xmove
   , buy
@@ -57,20 +57,30 @@ restock st = do
 hunt :: Maybe Position -> StateHandler
 hunt hPosMay st = do
   char <- character
-  case hPosMay of
+  st' <- case hPosMay of
     Just hPos | distanceE hPos char > 200.0 -> do
       log $ "Moving to hunting ground pos " <> (show hPos)
       xmove hPos
+      pure st
     _ -> do
       closest <- getNearestMonster'
       move closest
-      whenM (canAttackMonster closest)
-        $ attackMonster closest
+      canAttack <- canAttackMonster closest
+      st' <- if (canAttack) then do
+        char' <- character
+        let charPosMay =  Just $ playerPos char'
+        attackMonster closest
+        pure $ st {
+          task = Hunting charPosMay
+        , lastHuntingPos = charPosMay
+        }
+      else pure st
       when (char.mp < char.max_mp * 0.20) $ use' "use_mp"
       when (char.hp < char.max_hp * 0.80) $ use' "use_hp"
       loot'
-  if (shouldRestock char) then pure $ st { task = Restocking}
-  else pure $ st { task = Hunting hPosMay}
+      pure st'
+  if (shouldRestock char) then pure $ st' { task = Restocking}
+  else pure $ st' { task = Hunting st'.lastHuntingPos}
 
 taskDispatch :: Task -> StateHandler
 taskDispatch task = case task of
