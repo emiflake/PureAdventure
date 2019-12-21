@@ -40,3 +40,23 @@ fs.watch(STARTUP, () => {
 	reload();
 });
 ```
+
+### Running on  NixOS
+
+A convenient option is to use [easy-purescript-nix](https://github.com/justinwoo/easy-purescript-nix):
+
+
+```
+# Do the following each time starting the environment:
+cd /path/to/easy-purescript-nix
+nix-shell ci.nix 
+cd /path/to/PureAdventure
+
+npm install # run once
+npx bower install # run once
+
+pulp build --optimise > out.js
+
+```
+
+

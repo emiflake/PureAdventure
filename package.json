@@ -1,0 +1,32 @@
+{
+  "name": "pure-adventure",
+  "version": "0.0.1",
+  "description": "PureScript bindings and utilities for working with AdventureLand",
+  "main": "opt.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "bower": "^1.8.8",
+    "pulp": "^13.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emiflake/PureAdventure.git"
+  },
+  "keywords": [
+    "PureScript",
+    "Game",
+    "MMORPG"
+  ],
+  "author": "Emily Martins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emiflake/PureAdventure/issues"
+  },
+  "homepage": "https://github.com/emiflake/PureAdventure#readme"
+}
