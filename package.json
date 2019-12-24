@@ -9,6 +9,7 @@
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.8.8",
+    "http-server": "^0.12.0",
     "pulp": "^13.0.0"
   },
   "scripts": {
