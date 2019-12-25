@@ -20,6 +20,7 @@ import Adventure
   , canAttackMonster
   , character
   , playerPos
+  , random
   , use'
   , xmove
   , buy
@@ -63,24 +64,34 @@ hunt hPosMay st = do
       xmove hPos
       pure st
     _ -> do
-      closest <- getNearestMonster'
-      move closest
-      canAttack <- canAttackMonster closest
-      st' <- if (canAttack) then do
-        char' <- character
-        let charPosMay =  Just $ playerPos char'
-        attackMonster closest
-        pure $ st {
-          task = Hunting charPosMay
-        , lastHuntingPos = charPosMay
-        }
-      else pure st
+      closestMay <- getNearestMonster'
+      st' <- case closestMay of
+        Just closest -> do
+          move closest
+          canAttack <- canAttackMonster closest
+          if (canAttack) then do
+            char' <- character
+            let charPosMay =  Just $ playerPos char'
+            attackMonster closest
+            pure $ st {
+              task = Hunting charPosMay
+            , lastHuntingPos = charPosMay
+            }
+          else pure st
+        Nothing -> do
+          xr <- random
+          yr <- random
+          let newHPos = {x: xr, y: yr}
+          move newHPos
+          pure $ st {
+            task = Hunting $ Just newHPos
+          }
       when (char.mp < char.max_mp * 0.20) $ use' "use_mp"
       when (char.hp < char.max_hp * 0.80) $ use' "use_hp"
       loot'
       pure st'
   if (shouldRestock char) then pure $ st' { task = Restocking}
-  else pure $ st' { task = Hunting st'.lastHuntingPos}
+  else pure st'
 
 taskDispatch :: Task -> StateHandler
 taskDispatch task = case task of

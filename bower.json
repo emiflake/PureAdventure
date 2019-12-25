@@ -18,7 +18,8 @@
     "purescript-argonaut-generic": "^5.0.0",
     "purescript-aff-promise": "^2.1.0",
     "purescript-now": "^4.0.0",
-    "purescript-formatters": "^4.0.1"
+    "purescript-formatters": "^4.0.1",
+    "purescript-random": "^4.0.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0"

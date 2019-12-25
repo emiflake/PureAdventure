@@ -7,12 +7,14 @@ import Adventure.Position (Position, PositionE)
 import Control.Applicative (when)
 import Control.Promise (Promise, toAffE)
 import Data.Array (find)
-import Data.Functor ((<$>))
+import Data.Functor (map, (<$>))
 import Data.Int (floor)
 import Data.Maybe (Maybe(..))
+import Data.Nullable (Nullable, toMaybe)
 import Effect (Effect)
 import Effect.Aff
 import Effect.Class (liftEffect)
+import Effect.Random as R
 
 type Item
   = { name :: String
@@ -63,12 +65,13 @@ type Monster
 type NearestMonsterArgs
   = {}
 
-foreign import ffi_get_nearest_monster :: NearestMonsterArgs -> Effect Monster
+foreign import ffi_get_nearest_monster :: NearestMonsterArgs
+  -> Effect (Nullable Monster)
 
-getNearestMonster :: NearestMonsterArgs -> Aff Monster
-getNearestMonster = liftEffect <$> ffi_get_nearest_monster
+getNearestMonster :: NearestMonsterArgs -> Aff (Maybe Monster)
+getNearestMonster = liftEffect <$> (map toMaybe) <<< ffi_get_nearest_monster
 
-getNearestMonster' :: Aff Monster
+getNearestMonster' :: Aff (Maybe Monster)
 getNearestMonster' = getNearestMonster {}
 
 type AttackTarget r
@@ -147,3 +150,6 @@ foreign import ffi_can_move_ft :: forall e f. PositionE e -> PositionE f -> Effe
 
 canMoveFromTo :: forall e f. PositionE e -> PositionE f -> Effect Boolean
 canMoveFromTo = ffi_can_move_ft
+
+random :: Aff Number
+random = liftEffect R.random
