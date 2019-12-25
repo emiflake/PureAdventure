@@ -1,6 +1,6 @@
 module Adventure where
 
-import Prelude (Unit, ($), (<<<), (==), (>))
+import Prelude (Unit, ($), (>))
 
 import Adventure.Position (Position, PositionE)
 -- import Adventure.Log (log)
@@ -20,9 +20,6 @@ type Item
   = { name :: String
     , quantity :: Number
     }
-
-itemCount :: String -> Player -> Maybe Int
-itemCount name player = (floor <<< (\i -> i.quantity)) <$> find (\i -> i.name == name) player.itemList
 
 type Player
   = { name :: String

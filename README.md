@@ -97,7 +97,7 @@ cd /path/to/PureAdventure
 npm install # run once
 npx bower install # run once
 
-pulp build --optimise > out.js
+npx pulp build --optimise > out.js
 
 ```
 
