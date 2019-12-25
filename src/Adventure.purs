@@ -1,14 +1,12 @@
 module Adventure where
 
-import Prelude (Unit, ($), (>))
+import Prelude (Unit, ($), (>), (<<<))
 
 import Adventure.Position (Position, PositionE)
 -- import Adventure.Log (log)
 import Control.Applicative (when)
 import Control.Promise (Promise, toAffE)
-import Data.Array (find)
 import Data.Functor (map, (<$>))
-import Data.Int (floor)
 import Data.Maybe (Maybe(..))
 import Data.Nullable (Nullable, toMaybe)
 import Effect (Effect)
