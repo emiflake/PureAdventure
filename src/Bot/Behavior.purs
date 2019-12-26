@@ -9,7 +9,7 @@ import Prelude (
   , show
   , unit
   , when
-  , ($), (*), (-), (<), (<>), (>), (||)
+  , ($), (+), (*), (-), (<), (<>), (>), (||)
   )
 import Adventure
   ( Player
@@ -28,10 +28,12 @@ import Adventure
 import Adventure.Log (dateLog, log)
 import Adventure.Position (Position, distanceE)
 import Bot.Inventory (hpPotCount, mpPotCount)
-import Bot.Locations (npcPotionsPos)
+import Bot.Locations (gooPos, npcPotionsPos)
 import Bot.State (withState, StateHandler)
 import Bot.Task (Task(..))
 import Data.Maybe (Maybe(..))
+import Data.Maybe.First (First(..))
+import Data.Newtype (unwrap)
 import Effect.Aff (Aff, Milliseconds(..), delay)
 
 potionsTarget :: Int
@@ -81,11 +83,20 @@ hunt hPosMay st = do
         Nothing -> do
           xr <- random
           yr <- random
-          let newHPos = {x: xr, y: yr}
-          move newHPos
-          pure $ st {
-            task = Hunting $ Just newHPos
-          }
+          let lastHPosFirst = First hPosMay <> First st.lastHuntingPos
+          case unwrap lastHPosFirst of
+            Just hPos -> do
+              let newHPos = {x: hPos.x + xr, y: hPos.y + yr}
+              move newHPos
+              pure $ st {
+                task = Hunting $ Just newHPos
+              }
+            Nothing -> do
+              -- Go kills some goos, nothing else to do
+              -- Later can make this a level appropriate preset
+              pure $ st {
+                task = Hunting $ Just gooPos
+              }
       when (char.mp < char.max_mp * 0.20) $ use' "use_mp"
       when (char.hp < char.max_hp * 0.80) $ use' "use_hp"
       loot'
