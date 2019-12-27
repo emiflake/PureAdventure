@@ -21,11 +21,17 @@ setMessage = liftEffect <<< ffi_set_message
 
 foreign import ffi_safe_log :: String -> String -> Effect Unit
 
+safeLogE :: String -> String -> Effect Unit
+safeLogE text color = ffi_safe_log text color
+
 safeLog :: String -> String -> Aff Unit
-safeLog text color = liftEffect $ ffi_safe_log text color
+safeLog text color = liftEffect $ safeLogE text color
+
+logE :: String -> Effect Unit
+logE str = safeLogE str "white"
 
 log :: String -> Aff Unit
-log str = safeLog str "white"
+log = liftEffect <<< logE
 
 logShow :: forall a. Show a => a -> Aff Unit
 logShow = log <<< show

@@ -111,6 +111,7 @@ taskDispatch task = case task of
 
 tick :: Aff Unit
 tick = do
+  -- TODO: add a task that reads commands from the localStore for handle_command
   dateStr <- dateLog
   withState
     $ \st -> do
