@@ -31,7 +31,7 @@ import Bot.Inventory (hpPotCount, mpPotCount)
 import Bot.Locations (gooPos, npcPotionsPos)
 import Bot.State (withState, StateHandler)
 import Bot.Task (Task(..))
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Maybe.First (First(..))
 import Data.Newtype (unwrap)
 import Effect.Aff (Aff, Milliseconds(..), delay)
@@ -109,20 +109,24 @@ taskDispatch task = case task of
   Restocking -> restock
   Hunting hPosMay -> hunt hPosMay
 
-tick :: Aff Unit
-tick = do
-  -- TODO: add a task that reads commands from the localStore for handle_command
+-- | Takes an optional /command task supplied by the user,
+-- | which alters the existing control-flow.
+tick :: Maybe Task -> Aff Unit
+tick cmdMay = do
   dateStr <- dateLog
   withState
     $ \st -> do
-        log $ "Dispatching on task " <> show st.task
+        let task = fromMaybe st.task cmdMay
+        log $ "Dispatching on task " <> show task
           <> " at " <> dateStr
-        nst <- taskDispatch st.task st
+        nst <- taskDispatch task st
         pure nst
   delay $ Milliseconds 1000.0
-  tick
+  case cmdMay of
+    Nothing -> tick Nothing
+    _ -> pure unit -- finished the interrupt task, return
 
 runBot :: Aff Unit
 runBot = do
-  tick
+  tick Nothing
   pure unit
