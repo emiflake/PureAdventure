@@ -15,10 +15,10 @@ It's quite complicatated to get set up, but overall
 there's 1 magic command.
 
 ```bash
-pulp build --optimise > out.js
+npm run build
 ```
 
-After this, a file called `out.js` should be
+After this, a file called `out.js` under `out/` should be
 available, this will allow you to run your bot in
 Adventure Land through the code editor.
 
@@ -51,10 +51,9 @@ the dev dependencies for this purpose.
 
 
 ```bash
-mkdir out
 npx http-server ./out --cors -p 8000 &
 
-pulp build --optimise > out/out.js
+npm run build
 ```
 
 Note that you will need to re-engage code from the UI to load

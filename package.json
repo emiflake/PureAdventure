@@ -13,6 +13,7 @@
     "pulp": "^13.0.0"
   },
   "scripts": {
+    "build": "./scripts/build.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
