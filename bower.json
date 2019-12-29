@@ -21,7 +21,8 @@
     "purescript-formatters": "^4.0.1",
     "purescript-random": "^4.0.0",
     "purescript-numbers": "^7.0.0",
-    "purescript-lists": "^5.4.1"
+    "purescript-lists": "^5.4.1",
+    "purescript-strings": "^4.0.1"
   },
   "devDependencies": {
     "purescript-psci-support": "^4.0.0"

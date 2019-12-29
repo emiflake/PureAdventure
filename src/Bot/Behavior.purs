@@ -29,9 +29,9 @@ import Adventure.Log (dateLog, log)
 import Adventure.Position (Position, distanceE)
 import Bot.Inventory (hpPotCount, mpPotCount)
 import Bot.Locations (gooPos, npcPotionsPos)
-import Bot.State (withState, StateHandler)
+import Bot.State (getState, storeState, withState, withStateSafe, StateHandler)
 import Bot.Task (Task(..))
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(..), fromMaybe, isJust)
 import Data.Maybe.First (First(..))
 import Data.Newtype (unwrap)
 import Effect.Aff (Aff, Milliseconds(..), delay)
@@ -104,23 +104,39 @@ hunt hPosMay st = do
   if (shouldRestock char) then pure $ st' { task = Restocking}
   else pure st'
 
+-- | Maps `Task` values to function calls implementing task logic
 taskDispatch :: Task -> StateHandler
 taskDispatch task = case task of
   Restocking -> restock
   Hunting hPosMay -> hunt hPosMay
 
+-- | Executes the current task.
+-- |
 -- | Takes an optional /command task supplied by the user,
--- | which alters the existing control-flow.
+-- | which alters the existing control-flow as follows:
+-- | 1. interrupt (2nd async `tick` call) means this call
+-- |    should not write state.
+-- | 2. 2nd `tick` call writes to interrupt flag
+-- | 3. `withStateSafe` checks if it is in interrupt mode; if so,
+-- |    does not modify state.
+-- | 4. reset interrupted to false once interrupting call finishes
 tick :: Maybe Task -> Aff Unit
 tick cmdMay = do
   dateStr <- dateLog
-  withState
-    $ \st -> do
-        let task = fromMaybe st.task cmdMay
-        log $ "Dispatching on task " <> show task
-          <> " at " <> dateStr
-        nst <- taskDispatch task st
-        pure nst
+  st0 <- getState
+  st1 <- pure $ if isJust cmdMay then st0 { interrupted = true }
+                else st0
+  storeState st1
+  let ws = if isJust cmdMay then withState else withStateSafe
+  ws $ \st -> do
+    let task = fromMaybe st.task cmdMay
+    log $ "Dispatching on task " <> show task
+      <> " at " <> dateStr
+    nst <- taskDispatch task st
+    pure nst
+  when (isJust cmdMay) do
+    pst <- getState
+    storeState $ pst { interrupted = false }
   delay $ Milliseconds 1000.0
   case cmdMay of
     Nothing -> tick Nothing

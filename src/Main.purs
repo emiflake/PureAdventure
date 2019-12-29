@@ -26,8 +26,6 @@ handle_command c a = fromAff $ handle_commandA c a
 
 handle_commandA :: String -> Array String -> Aff Boolean
 handle_commandA cmdName args = do
-  -- TODO: determine between immediate commands and commands that
-  --       (may also) modify the next task, etc?
   let cmdIn = NA.cons' cmdName args
   cmd <- parseCmd cmdIn
   case cmd of
