@@ -61,7 +61,7 @@ hunt :: Maybe Position -> StateHandler
 hunt hPosMay st = do
   char <- character
   st' <- case hPosMay of
-    Just hPos | distanceE hPos char > 50.0 -> do
+    Just hPos | distanceE hPos char > 150.0 -> do
       log 3 $ "Moving to hunting ground pos " <> (show hPos)
       xmove hPos
       pure st

@@ -68,9 +68,9 @@ const CODE_URL = 'http://localhost:8000/out.js';
 // Path of PS gen file
 
 const reload = async () => {
-	const ms = Date.now();
+  const ms = Date.now();
   const data = await fetch(CODE_URL+"?dummy="+ms)
-	  .catch(er => game_log(er.message))
+    .catch(er => game_log(er.message))
     .then(response => response.text());
 	game_log("Retrieved out.js");
 	// This is necessary to kill all timers that PureScript might be running
