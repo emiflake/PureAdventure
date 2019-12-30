@@ -101,6 +101,8 @@ move ::
   Aff Unit
 move p = liftEffect $ ffi_move p.x p.y
 
+-- | Tries to do `move` first (if `can_move_to(x,y) == true`),
+-- | otherwise does `smart_move`.
 xmove ::
   forall e.
   PositionE e ->
