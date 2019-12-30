@@ -21,6 +21,7 @@ type ST
     , counter :: Number
     , lastHuntingPos :: Maybe Position
     , interrupted :: Boolean
+    , logLevel :: Int
     }
 
 initHuntingPos :: Maybe Position
@@ -32,6 +33,7 @@ initialState =
   , counter: 0.0
   , lastHuntingPos: initHuntingPos
   , interrupted: false
+  , logLevel: 2
   }
 
 stateKey :: Aff String

@@ -16,7 +16,7 @@ import Effect.Class (liftEffect)
 main :: Effect Unit
 main =
   launchAff_ do
-    log "Hello from PureScript"
+    log (-1) "Hello from PureScript"
     -- Keep handle_command from being optimized out:
     _ <- liftEffect $ handle_command "dummy" []
     runBot
@@ -33,5 +33,5 @@ handle_commandA cmdName args = do
       tick $ Just task
       pure true
     Left err -> do
-      log err
+      log (-1) err
       pure false

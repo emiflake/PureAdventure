@@ -47,7 +47,7 @@ shouldRestock char =
 restock :: StateHandler
 restock st = do
   char <- character
-  log ("Have " <> show char.gold <> " gold")
+  log 0 $ ("Have " <> show char.gold <> " gold")
   xmove npcPotionsPos
   let
     potsDist = distanceE npcPotionsPos char
@@ -62,7 +62,7 @@ hunt hPosMay st = do
   char <- character
   st' <- case hPosMay of
     Just hPos | distanceE hPos char > 200.0 -> do
-      log $ "Moving to hunting ground pos " <> (show hPos)
+      log 3 $ "Moving to hunting ground pos " <> (show hPos)
       xmove hPos
       pure st
     _ -> do
@@ -130,7 +130,7 @@ tick cmdMay = do
   let ws = if isJust cmdMay then withState else withStateSafe
   ws $ \st -> do
     let task = fromMaybe st.task cmdMay
-    log $ "Dispatching on task " <> show task
+    log 3 $ "Dispatching on task " <> show task
       <> " at " <> dateStr
     nst <- taskDispatch task st
     pure nst

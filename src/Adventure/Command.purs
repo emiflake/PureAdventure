@@ -1,17 +1,20 @@
 module Adventure.Command where
 
-import Prelude (($), (<$>), (<>), bind, join, not, pure, show)
+import Prelude (($), (<$>), (<>), bind, discard, join, not, pure, show)
 
 import Adventure (character, playerPos)
+import Adventure.Log (setLogLvl)
 import Adventure.Position (Position)
 import Bot.Locations (positions)
+import Bot.State (getState)
 import Bot.Task (Task(..))
 import Data.Array.NonEmpty as NA
 import Data.Either (Either(..))
-import Data.List (List, (:), filter, fromFoldable)
+import Data.Int as DI
+import Data.List (List, (:), filter, fromFoldable, head)
 import Data.Map (lookup)
-import Data.Maybe (Maybe(..))
-import Data.Number (fromString)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Number as DN
 import Data.String.Common (split, null)
 import Data.String.Pattern (Pattern(..))
 import Effect.Aff (Aff)
@@ -29,10 +32,15 @@ parseCmd :: NA.NonEmptyArray String -> Aff Command
 parseCmd cmdStrs = case NA.head cmdStrs of
   "coords" -> do
     char <- character
-    pure $ Left $ show $ playerPos char
+    pure $ Left $ "Player coords: " <> (show $ playerPos char)
   "dummy" -> pure $ Left "" -- Say nothing, do nothing
   "go" -> pure $ Left "Unimplemented"
   "hunt" -> pure $ hunt $ args
+  "loglvl" -> do
+    st <- getState
+    setLogLvl $ fromMaybe st.logLevel $
+      join $ DI.fromString <$> head args
+    pure $ Left ""
   "restock" -> pure $ Left "Unimplemented"
   badCmd -> pure $ Left $ "Unkown command: " <> badCmd
   where
@@ -46,8 +54,8 @@ hunt (a1:a2:as) = case getPos of
   where
     getPos :: Maybe Position
     getPos = do
-      x <- fromString a1
-      y <- fromString a2
+      x <- DN.fromString a1
+      y <- DN.fromString a2
       pure {x: x, y: y}
 hunt (a1:as) = case a1 of
   "stop" -> Right $ Restocking
